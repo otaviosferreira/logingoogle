@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080b14">
+  <meta name="description" content="Aplicação acadêmica para aprender Google Identity Services, autenticação e OAuth 2.0.">
+  <title>Login com Google — Laboratório de autenticação</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="/js/auth.js" defer></script>
+  <script src="/js/quiz.js" defer></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#inicio"><span class="brand-mark">G</span><span>Auth<span class="brand-muted">Lab</span></span></a>
+      <p class="side-label">APRENDIZADO</p>
+      <nav class="side-nav" aria-label="Navegação principal">
+        <a class="active" href="#inicio"><span>⌂</span> Início</a>
+        <a href="#fluxos"><span>⇄</span> Entenda os fluxos</a>
+        <a href="#google-cloud"><span>☁</span> Configuração Google Cloud</a>
+        <a href="#credenciais"><span>⌘</span> Client ID e URLs</a>
+        <a href="#implementacao"><span>↗</span> Implementação do login</a>
+        <a href="#seguranca"><span>◈</span> Sessão e segurança</a>
+        <a href="#quiz"><span>▤</span> Quiz educativo</a>
+        <a href="#checklist"><span>✓</span> Checklist</a>
+      </nav>
+      <div class="sidebar-bottom"><span class="status-dot"></span> Laboratório acadêmico <small>GIS · OAuth 2.0 · Segurança</small></div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar"><div class="breadcrumb">Laboratório <span>/</span> <strong>Login com Google</strong></div><span class="top-tag">PROJETO EDUCACIONAL</span></header>
+      <section class="hero" id="inicio">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="status-dot"></span> GUIA PRÁTICO DE AUTENTICAÇÃO</div>
+          <h1>Login com <span class="google-gradient">Google.</span><br>Entenda. Implemente. Proteja.</h1>
+          <p>Explore como o Google Identity Services e o OAuth 2.0 ajudam aplicações web a autenticar usuários e solicitar acesso autorizado a recursos.</p>
+          <div class="hero-actions"><a class="btn btn-primary" href="#implementacao">Começar a explorar <span>→</span></a><a class="btn btn-ghost" href="#fluxos">Entender os fluxos</a></div>
+          <div class="hero-meta"><span>●</span> Conteúdo prático e interativo <span>·</span> HTML, CSS, JS e Node.js</div>
+        </div>
+        <div class="hero-visual" aria-label="Ilustração de autenticação">
+          <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+          <div class="auth-card"><div class="google-g">G</div><div class="auth-line wide"></div><div class="auth-line"></div><div class="auth-lock">✓</div><small>IDENTIDADE VERIFICADA</small></div>
+          <span class="float-chip chip-top">OAuth 2.0</span><span class="float-chip chip-bottom">ID Token · HTTPS</span>
+        </div>
+      </section>
+
+      <section class="section-block" id="implementacao">
+        <div class="section-heading"><div><div class="eyebrow">01 / AUTENTICAÇÃO REAL</div><h2>Entre com sua conta Google</h2><p>O Google Identity Services entrega uma credencial assinada. O servidor valida o ID token antes de criar a sessão da aplicação.</p></div><span class="section-index">GIS</span></div>
+        <div class="login-layout">
+          <article class="panel login-panel"><div class="panel-icon">G</div><h3>Bem-vindo ao AuthLab</h3><p>Use sua conta Google para acessar o painel privado de demonstração.</p>
+            <div id="google-button" class="google-button-slot"><div class="skeleton">Carregando configuração do login…</div></div>
+            <p id="login-message" class="message" role="status">O login será habilitado após configurar as credenciais do Google Cloud.</p>
+            <div class="secure-note"><span>♧</span> Sua senha Google nunca é solicitada ou armazenada por esta aplicação.</div>
+          </article>
+          <article class="panel user-panel" id="user-panel"><div class="panel-top"><div><span class="eyebrow">ÁREA PRIVADA</span><h3>Seu perfil</h3></div><span class="pill pill-muted" id="auth-status">Não autenticado</span></div>
+            <div id="guest-state" class="guest-state"><div class="guest-avatar">?</div><strong>Nenhuma sessão ativa</strong><p>Faça login para visualizar os dados retornados pelo servidor.</p></div>
+            <div id="profile-state" class="profile-state hidden"><img id="profile-picture" alt="Foto de perfil"><div><h3 id="profile-name">—</h3><p id="profile-email">—</p></div><dl><dt>Identificador Google (sub)</dt><dd id="profile-sub">—</dd><dt>Autenticado em</dt><dd id="profile-time">—</dd></dl><button class="btn btn-danger" id="logout-button">Encerrar sessão</button></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section-block" id="fluxos"><div class="section-heading"><div><div class="eyebrow">02 / CONCEITOS FUNDAMENTAIS</div><h2>Autenticação não é autorização</h2><p>São conceitos relacionados, mas resolvem problemas diferentes.</p></div><span class="section-index">01</span></div>
+        <div class="two-cards"><article class="info-card"><span class="card-symbol symbol-blue">◎</span><h3>Autenticação</h3><p>Responde à pergunta: <strong>quem é você?</strong> A aplicação verifica a identidade do usuário, por exemplo, validando um ID token emitido pelo Google.</p><span class="mini-label">IDENTIDADE</span></article><article class="info-card"><span class="card-symbol symbol-purple">⇄</span><h3>Autorização</h3><p>Responde à pergunta: <strong>o que você pode acessar?</strong> O usuário concede permissões específicas para a aplicação acessar recursos protegidos.</p><span class="mini-label">PERMISSÕES</span></article></div>
+        <div class="flow-card"><div class="flow-title"><span class="eyebrow">FLUXO GIS · CREDENCIAL DE LOGIN</span><span class="pill pill-green">ID TOKEN</span></div><div class="flow-steps"><div><b>01</b><strong>Usuário</strong><small>Escolhe a conta</small></div><i>→</i><div><b>02</b><strong>Google</strong><small>Emite ID token</small></div><i>→</i><div><b>03</b><strong>Frontend</strong><small>Envia credencial</small></div><i>→</i><div><b>04</b><strong>Backend</strong><small>Valida assinatura</small></div><i>→</i><div><b>05</b><strong>Sessão</strong><small>Cookie HttpOnly</small></div></div></div>
+        <div class="flow-card oauth-flow"><div class="flow-title"><span class="eyebrow">OAUTH 2.0 · AUTHORIZATION CODE + PKCE</span><a href="/api/oauth/start" class="text-link" id="oauth-start">Experimentar fluxo de autorização ↗</a></div><div class="flow-steps"><div><b>01</b><strong>Aplicação</strong><small>Solicita autorização</small></div><i>→</i><div><b>02</b><strong>Usuário</strong><small>Concede permissão</small></div><i>→</i><div><b>03</b><strong>Google</strong><small>Retorna um código</small></div><i>→</i><div><b>04</b><strong>Backend</strong><small>Valida state e troca</small></div><i>→</i><div><b>05</b><strong>API Google</strong><small>Access token autoriza</small></div></div><p class="flow-caption">O botão abre o fluxo OAuth real quando Client ID, Client Secret e Redirect URI estiverem configurados.</p></div>
+      </section>
+
+      <section class="section-block" id="google-cloud"><div class="section-heading"><div><div class="eyebrow">03 / PREPARAÇÃO</div><h2>Configure o Google Cloud</h2><p>Crie as credenciais que permitirão ao Google reconhecer sua aplicação.</p></div><span class="section-index">02</span></div>
+        <div class="steps-list">
+          <div class="setup-step"><span>01</span><div><h3>Crie um projeto</h3><p>Acesse o <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">Google Cloud Console</a>, crie ou selecione um projeto.</p></div></div>
+          <div class="setup-step"><span>02</span><div><h3>Configure a tela de consentimento</h3><p>Preencha nome do aplicativo, e-mail de suporte e informações de contato. Para o modo de teste, adicione as contas Google autorizadas a testar.</p></div></div>
+          <div class="setup-step"><span>03</span><div><h3>Crie um ID do cliente OAuth</h3><p>Em APIs e serviços → Credenciais → Criar credenciais → ID do cliente OAuth. Selecione o tipo <strong>Aplicativo da Web</strong>.</p></div></div>
+          <div class="setup-step"><span>04</span><div><h3>Cadastre origens e redirecionamentos</h3><p>Adicione as origens JavaScript do site. Para o fluxo Authorization Code, cadastre também a Redirect URI exata usada pelo backend.</p></div></div>
+        </div>
+      </section>
+
+      <section class="section-block" id="credenciais"><div class="section-heading"><div><div class="eyebrow">04 / CONFIGURAÇÃO</div><h2>Client ID, Client Secret e URLs</h2><p>Use os valores do seu projeto. Os exemplos abaixo são endereços ilustrativos.</p></div><span class="section-index">03</span></div>
+        <div class="table-card"><div class="config-row"><div><strong>Client ID</strong><small>Identifica a aplicação. Pode ser usado no frontend.</small></div><code>123456789.apps.googleusercontent.com</code></div><div class="config-row"><div><strong>Client Secret</strong><small>Segredo confidencial usado somente pelo backend.</small></div><code>••••••••••••••••••••••</code></div><div class="config-row"><div><strong>Origem JavaScript</strong><small>Domínio que pode iniciar o login GIS.</small></div><code>https://seu-projeto.vercel.app</code></div><div class="config-row"><div><strong>Redirect URI</strong><small>Destino do callback do fluxo OAuth.</small></div><code>https://seu-projeto.vercel.app/api/oauth/callback</code></div></div>
+        <div class="callout"><span>ⓘ</span><p>O Client Secret nunca deve ser colocado no HTML, CSS, JavaScript público ou repositório. Cadastre-o como variável de ambiente na Vercel.</p></div>
+      </section>
+
+      <section class="section-block" id="seguranca"><div class="section-heading"><div><div class="eyebrow">05 / TOKENS E PROTEÇÃO</div><h2>Conheça as peças do OAuth 2.0</h2><p>Cada parâmetro tem uma função específica no processo de autenticação e autorização.</p></div><span class="section-index">04</span></div>
+        <div class="token-grid">
+          <article class="token-card"><code>ID TOKEN</code><h3>Identidade</h3><p>JWT que representa a autenticação do usuário. Deve ter assinatura, emissor, expiração e audiência validados.</p></article>
+          <article class="token-card"><code>ACCESS TOKEN</code><h3>Acesso à API</h3><p>Credencial que permite chamar APIs Google dentro dos scopes concedidos. Não serve como prova direta de identidade.</p></article>
+          <article class="token-card"><code>REFRESH TOKEN</code><h3>Renovação</h3><p>Permite obter novos access tokens sem pedir autorização novamente, conforme política do provedor. Deve ficar protegido no servidor.</p></article>
+          <article class="token-card"><code>AUTHORIZATION CODE</code><h3>Código temporário</h3><p>É recebido no callback e trocado por tokens no backend. Não deve ser tratado como access token.</p></article>
+          <article class="token-card"><code>CLIENT ID / SECRET</code><h3>Identificação do cliente</h3><p>O Client ID identifica a aplicação. O Client Secret autentica o cliente confidencial no backend.</p></article>
+          <article class="token-card"><code>SCOPES</code><h3>Permissões</h3><p>Definem quais recursos a aplicação solicita, como openid, email e profile.</p></article>
+          <article class="token-card"><code>STATE</code><h3>Proteção CSRF</h3><p>Valor aleatório associado à sessão e comparado no callback para impedir respostas OAuth forjadas.</p></article>
+          <article class="token-card"><code>PKCE</code><h3>Proteção do código</h3><p>Vincula o código de autorização a um verificador secreto, usando desafio S256, reduzindo risco de interceptação.</p></article>
+          <article class="token-card"><code>REDIRECT URI</code><h3>Destino autorizado</h3><p>URL cadastrada no Google para receber a resposta do fluxo. Deve corresponder exatamente à configuração.</p></article>
+        </div>
+        <div class="security-banner"><div class="shield">✓</div><div><strong>O navegador não é a autoridade.</strong><p>O backend valida o ID token com a biblioteca oficial, cria uma sessão no servidor e envia apenas um cookie HttpOnly ao navegador.</p></div></div>
+      </section>
+
+      <section class="section-block" id="quiz"><div class="section-heading"><div><div class="eyebrow">06 / TESTE SEUS CONHECIMENTOS</div><h2>Quiz de autenticação</h2><p>Dez questões para revisar os conceitos apresentados.</p></div><span class="section-index">05</span></div>
+        <div class="quiz-card"><div id="quiz-start"><div class="quiz-icon">?</div><h3>Pronto para o desafio?</h3><p>Informe seu nome e responda 10 questões de múltipla escolha.</p><label for="quiz-name">Seu nome</label><input id="quiz-name" type="text" maxlength="40" placeholder="Digite seu nome"><button class="btn btn-primary" id="quiz-begin">Iniciar quiz <span>→</span></button></div><div id="quiz-game" class="hidden"><div class="quiz-progress"><span id="quiz-counter">Questão 1 de 10</span><span id="quiz-score">0 acertos</span></div><div class="progress-track"><span id="quiz-progress-bar"></span></div><h3 id="quiz-question"></h3><div id="quiz-options" class="quiz-options"></div><p id="quiz-feedback" class="quiz-feedback" aria-live="polite"></p><button class="btn btn-primary hidden" id="quiz-next">Próxima questão →</button></div><div id="quiz-result" class="hidden"><div class="result-mark">✓</div><h3 id="result-title">Quiz concluído!</h3><div class="result-stats"><div><strong id="result-correct">0</strong><span>Acertos</span></div><div><strong id="result-wrong">0</strong><span>Erros</span></div></div><p id="result-message"></p><button class="btn btn-primary" id="quiz-restart">Refazer quiz ↻</button></div></div>
+      </section>
+
+      <section class="section-block" id="checklist"><div class="section-heading"><div><div class="eyebrow">07 / ANTES DE PUBLICAR</div><h2>Checklist de segurança</h2><p>Marque os itens conforme concluir a configuração do seu projeto.</p></div><span class="section-index">06</span></div><div class="checklist-card"><div class="checklist-head"><div><strong>Preparação do ambiente</strong><small id="checklist-count">0 de 10 concluídos</small></div><div class="check-progress"><span id="check-progress-bar"></span></div></div><div id="checklist-items"><label><input type="checkbox"> Projeto Google Cloud configurado</label><label><input type="checkbox"> Tela de consentimento configurada</label><label><input type="checkbox"> Client ID configurado</label><label><input type="checkbox"> Origens autorizadas cadastradas</label><label><input type="checkbox"> Redirect URI configurada quando necessária</label><label><input type="checkbox"> ID token validado no backend</label><label><input type="checkbox"> Sessão protegida com cookie HttpOnly</label><label><input type="checkbox"> Logout invalida a sessão no servidor</label><label><input type="checkbox"> Segredos armazenados em variáveis de ambiente</label><label><input type="checkbox"> HTTPS habilitado em produção</label></div></div></section>
+      <footer class="footer"><span>AuthLab · Projeto acadêmico</span><span>Aprender segurança é construir com responsabilidade.</span></footer>
+    </main>
+  </div>
+</body>
+</html>
