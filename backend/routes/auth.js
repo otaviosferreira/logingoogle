@@ -44,8 +44,8 @@ router.post("/auth/logout", requireAuth, (req, res, next) => {
   });
 });
 
-// Authorization Code + state + PKCE S256. Tokens permanecem no servidor.
-router.get("/oauth/start", (req, res, next) => {
+// Authorization Code + state + PKCE S256. O access token é usado no servidor.
+router.get("/oauth/start", requireDatabase, (req, res, next) => {
   if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET || !process.env.GOOGLE_REDIRECT_URI) {
     return res.status(503).send("Configure GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET e GOOGLE_REDIRECT_URI.");
   }
@@ -63,7 +63,7 @@ router.get("/oauth/start", (req, res, next) => {
   })().catch(next);
 });
 
-router.get("/oauth/callback", async (req, res, next) => {
+router.get("/oauth/callback", requireDatabase, async (req, res, next) => {
   try {
     const { code, state } = req.query;
     const received = Buffer.from(String(state || ""));
@@ -76,15 +76,28 @@ router.get("/oauth/callback", async (req, res, next) => {
       code: String(code), codeVerifier: req.session.codeVerifier,
       redirect_uri: process.env.GOOGLE_REDIRECT_URI
     });
-    const ticket = await oauthClient.verifyIdToken({
+    const identityTicket = await oauthClient.verifyIdToken({
       idToken: tokens.id_token, audience: process.env.GOOGLE_CLIENT_ID
     });
-    const p = ticket.getPayload();
-    if (!p?.sub) return res.status(401).send("Identidade não validada.");
+    const identity = identityTicket.getPayload();
+    if (!identity?.sub) return res.status(401).send("Identidade não validada.");
+
+    // Demonstra o uso do access token para consultar a API UserInfo autorizada.
+    const userInfoClient = new OAuth2Client();
+    userInfoClient.setCredentials({ access_token: tokens.access_token });
+    const { data: userInfo } = await userInfoClient.request({
+      url: "https://www.googleapis.com/oauth2/v3/userinfo"
+    });
+    if (!userInfo?.sub || userInfo.sub !== identity.sub) {
+      return res.status(401).send("A identidade retornada pela API não corresponde ao ID token.");
+    }
+
     await new Promise((resolve, reject) => req.session.regenerate(err => err ? reject(err) : resolve()));
     req.session.user = {
-      googleId: p.sub, name: p.name || "Usuário Google",
-      email: p.email, picture: p.picture || null
+      googleId: identity.sub,
+      name: userInfo.name || identity.name || "Usuário Google",
+      email: userInfo.email || identity.email,
+      picture: userInfo.picture || identity.picture || null
     };
     req.session.authenticatedAt = new Date().toISOString();
     res.redirect("/?oauth=success#login");
