@@ -50,14 +50,17 @@
   }
 
   async function init() {
-    await refreshProfile();
+    // Não bloquear a renderização do botão enquanto a sessão é consultada.
+    refreshProfile();
     try {
       const response = await request("/config");
+      if (!response.ok) throw new Error("Não foi possível carregar a configuração.");
       const config = await response.json();
       if (!config.googleClientId) {
         $("google-button").innerHTML = '<div class="skeleton">Configure GOOGLE_CLIENT_ID nas variáveis de ambiente para ativar o login.</div>';
         return;
       }
+      const startedAt = Date.now();
       const waitForGoogle = () => {
         if (window.google?.accounts?.id) {
           google.accounts.id.initialize({
@@ -69,7 +72,11 @@
             theme: "outline", size: "large", shape: "pill",
             text: "signin_with", width: 260
           });
-        } else setTimeout(waitForGoogle, 150);
+        } else if (Date.now() - startedAt < 12000) {
+          setTimeout(waitForGoogle, 150);
+        } else {
+          $("google-button").innerHTML = '<div class="skeleton">O serviço de login do Google demorou para carregar. Atualize a página e tente novamente.</div>';
+        }
       };
       waitForGoogle();
     } catch {
