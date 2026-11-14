@@ -19,7 +19,7 @@ let pool = null;
 if (process.env.DATABASE_URL) {
   pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: process.env.PGSSL === "true" ? { rejectUnauthorized: true } : undefined,
+    ssl: process.env.PGSSL === "true" ? { rejectUnauthorized: false } : undefined,
     max: 5, idleTimeoutMillis: 10000, connectionTimeoutMillis: 5000
   });
 }
