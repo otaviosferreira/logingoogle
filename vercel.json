@@ -1,4 +1,10 @@
 {
   "version": 2,
-  "outputDirectory": "frontend"
+  "outputDirectory": "frontend",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://logingoogle-api.onrender.com/api/$1"
+    }
+  ]
 }
