@@ -10,6 +10,9 @@ const authRoutes = require("./routes/auth");
 
 const app = express();
 const isProduction = process.env.NODE_ENV === "production";
+if (isProduction && !process.env.SESSION_SECRET) {
+  throw new Error("SESSION_SECRET precisa ser configurado em produção.");
+}
 const PgStore = connectPgSimple(session);
 let pool = null;
 
@@ -42,7 +45,7 @@ app.use((req, res, next) => {
 
 const sessionOptions = {
   name: "login_google.sid",
-  secret: process.env.SESSION_SECRET || (isProduction ? "MISSING_SESSION_SECRET" : "dev-only-change-me"),
+  secret: process.env.SESSION_SECRET || "dev-only-change-me",
   resave: false, saveUninitialized: false, rolling: true,
   cookie: {
     httpOnly: true, secure: isProduction, sameSite: "lax",
