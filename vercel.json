@@ -1,11 +1,4 @@
 {
   "version": 2,
-  "buildCommand": null,
-  "outputDirectory": "frontend",
-  "functions": {
-    "api/**/*.js": { "runtime": "nodejs20.x" }
-  },
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" }
-  ]
+  "outputDirectory": "frontend"
 }
